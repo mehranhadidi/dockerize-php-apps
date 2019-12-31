@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  nginx:
+    container_name: ${PROJECT_NAME}_nginx
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ${PROJECT_ROOT}:/usr/share/nginx/html
+      - ${NGINX_LOG}:/var/log/nginx
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    depends_on:
+      - php-fpm
+
+  php-fpm:
+    container_name: ${PROJECT_NAME}_php-fpm
+    image: php:${PHP_VERSION}-fpm
+    volumes:
+      - ${PROJECT_ROOT}:/usr/share/nginx/html
+
+  mysql:
+    container_name: ${PROJECT_NAME}_mysql
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: devpass
+    ports:
+      - "3306:3306"
+    networks:
+      - backend
+    volumes:
+      - ${MYSQL_STORAGE}:/var/lib/mysql
